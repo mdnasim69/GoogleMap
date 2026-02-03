@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -31,6 +33,13 @@ class _HomeState extends State<Home> {
   MapType _mapType = MapType.normal;
   String name = "GoogleMap";
   GoogleMapController? _googleMapController;
+  final Set<Marker> _markers = {
+    Marker(
+      markerId: MarkerId("rajshahi"),
+      position: LatLng(24.3746, 88.6004),
+      infoWindow: InfoWindow(title: "home town"),
+    ),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +89,19 @@ class _HomeState extends State<Home> {
         ),
         onMapCreated: (GoogleMapController controller) {
           _googleMapController = controller;
+        },
+        trafficEnabled: true,
+        markers: _markers,
+        // Set.of(_markers),
+        onTap: (LatLng position) {
+          _markers.add(
+            Marker(
+              position: position,
+              infoWindow: InfoWindow(title: "selected Location"),
+              markerId: MarkerId(position.toString()),
+            ),
+          );
+          setState(() {});
         },
       ),
     );
