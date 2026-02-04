@@ -32,9 +32,12 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
   MapType _mapType = MapType.normal;
   String name = "GoogleMap";
+  //Map controller
   GoogleMapController? _googleMapController;
+  // Marker set
   final Set<Marker> _markers = {
     Marker(
       markerId: MarkerId("rajshahi"),
@@ -49,6 +52,7 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Text(name),
         actions: [
+          //Map Layer
           PopupMenuButton<MapType>(
             icon: const Icon(Icons.layers),
             onSelected: (MapType type) {
@@ -69,20 +73,9 @@ class _HomeState extends State<Home> {
               ),
             ],
           ),
-          PopupMenuButton<String>(
-            icon: Icon(Icons.ac_unit_rounded),
-            onSelected: (v) {
-              name = v;
-              setState(() {});
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(value: 'Microsoft', child: Text("Microsoft")),
-              PopupMenuItem(value: 'Facebook', child: Text("Facebook")),
-              PopupMenuItem(value: 'Youtube', child: Text("Youtube")),
-            ],
-          ),
         ],
       ),
+      //Show Map
       body: GoogleMap(
         myLocationEnabled: true,
         myLocationButtonEnabled: false,
@@ -98,15 +91,18 @@ class _HomeState extends State<Home> {
         markers: _markers,
         onTap: (LatLng position) async {
           try {
-            List<Placemark> coordinates = await placemarkFromCoordinates(
+            //lat long to places
+            List<Placemark> placemark = await placemarkFromCoordinates(
               position.latitude,
               position.longitude,
             );
-            Placemark place = coordinates.reversed.last;
+            Placemark place = placemark.reversed.last;
 
             String address =
                 "${place.subLocality}, ${place.locality}, ${place.country},";
+            //place to lat long
             List<Location> locations = await locationFromAddress(address);
+            //add marker to markers set
             _markers.add(
               Marker(
                 position: position,
@@ -125,6 +121,7 @@ class _HomeState extends State<Home> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
+          // // Navigate to current Location
           // await getCurrentLocation().then((v) {
           //   _markers.add(
           //     Marker(
@@ -142,6 +139,7 @@ class _HomeState extends State<Home> {
           //   setState(() {
           //   });
           // });
+          // // navigate to place using lat long
           _googleMapController?.animateCamera(
             CameraUpdate.newCameraPosition(
               CameraPosition(target: LatLng(24.7413, 88.2912),zoom:16),
@@ -151,7 +149,7 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-
+//Location Permission and get current location lat long
   Future<Position> getCurrentLocation() async {
     var location = await Geolocator.requestPermission();
     return await Geolocator.getCurrentPosition();
