@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 
@@ -83,6 +84,8 @@ class _HomeState extends State<Home> {
         ],
       ),
       body: GoogleMap(
+        myLocationEnabled: true,
+        myLocationButtonEnabled: false,
         mapType: _mapType,
         initialCameraPosition: CameraPosition(
           target: LatLng(24.3746, 88.6004),
@@ -101,20 +104,56 @@ class _HomeState extends State<Home> {
             );
             Placemark place = coordinates.reversed.last;
 
-            String address ="${place.subLocality}, ${place.locality}, ${place.country},";
+            String address =
+                "${place.subLocality}, ${place.locality}, ${place.country},";
             List<Location> locations = await locationFromAddress(address);
-          _markers.add(
-            Marker(
-              position: position,
-              infoWindow: InfoWindow(title:"${locations.last.latitude} , ${locations.last.longitude} , $address"),
-              markerId: MarkerId(position.toString()),
-            ),
-          );
-          setState(() {});} catch (e) {
+            _markers.add(
+              Marker(
+                position: position,
+                infoWindow: InfoWindow(
+                  title:
+                      "${locations.last.latitude} , ${locations.last.longitude} , $address",
+                ),
+                markerId: MarkerId(position.toString()),
+              ),
+            );
+            setState(() {});
+          } catch (e) {
             print(e.toString());
           }
         },
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          // await getCurrentLocation().then((v) {
+          //   _markers.add(
+          //     Marker(
+          //       infoWindow: InfoWindow(title: "Current Location"),
+          //       position: LatLng(v.latitude, v.longitude),
+          //       markerId: MarkerId(v.toString()),
+          //     ),
+          //   );
+          //   CameraPosition cameraPosition = CameraPosition(
+          //     target: LatLng(v.latitude, v.longitude),
+          //   );
+          //   _googleMapController?.animateCamera(
+          //     CameraUpdate.newCameraPosition(cameraPosition),
+          //   );
+          //   setState(() {
+          //   });
+          // });
+          _googleMapController?.animateCamera(
+            CameraUpdate.newCameraPosition(
+              CameraPosition(target: LatLng(24.7413, 88.2912),zoom:16),
+            ),
+          );
+        },
+      ),
     );
+  }
+
+  Future<Position> getCurrentLocation() async {
+    var location = await Geolocator.requestPermission();
+    return await Geolocator.getCurrentPosition();
   }
 }
