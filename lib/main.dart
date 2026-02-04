@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geocoding/geocoding.dart';
 
 void main() {
   runApp(const MyApp());
@@ -92,16 +93,26 @@ class _HomeState extends State<Home> {
         },
         trafficEnabled: true,
         markers: _markers,
-        // Set.of(_markers),
-        onTap: (LatLng position) {
+        onTap: (LatLng position) async {
+          try {
+            List<Placemark> coordinates = await placemarkFromCoordinates(
+              position.latitude,
+              position.longitude,
+            );
+            Placemark place = coordinates.reversed.last;
+
+            String address ="${place.subLocality}, ${place.locality}, ${place.country},";
+            List<Location> locations = await locationFromAddress(address);
           _markers.add(
             Marker(
               position: position,
-              infoWindow: InfoWindow(title: "selected Location"),
+              infoWindow: InfoWindow(title:"${locations.last.latitude} , ${locations.last.longitude} , $address"),
               markerId: MarkerId(position.toString()),
             ),
           );
-          setState(() {});
+          setState(() {});} catch (e) {
+            print(e.toString());
+          }
         },
       ),
     );
