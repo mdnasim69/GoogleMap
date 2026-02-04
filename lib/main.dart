@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:collection';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -48,11 +48,10 @@ class _HomeState extends State<Home> {
     ),
   };
 
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   //searched places list
-  List<dynamic> _suggestions = [
-  ];
+  List<dynamic> _suggestions = [];
 
   // Search places Api get request and Get places List
   String apiKey = "AIzaSyBpD1p4hQ3su-aayuiQ226ZDXQRqK1cIok";
@@ -71,6 +70,48 @@ class _HomeState extends State<Home> {
     } else {
       return [];
     }
+  }
+
+  //Add polygon
+  Set<Polygon> polygon = HashSet<Polygon>();
+  List<LatLng> points = [
+    LatLng(24.372011, 88.600794),
+    LatLng(24.373173, 88.600964),
+    LatLng(24.372958, 88.602259),
+    LatLng(24.372011, 88.600794),
+  ];
+
+  //polyline
+  Set<Polyline> polyline = {};
+  List<LatLng> PLpoints = [
+    LatLng(24.374177, 88.603429),
+    LatLng(24.375020, 88.602736),
+    LatLng(24.374107, 88.600623),
+  ];
+
+  @override
+  void initState() {
+    //
+    polygon.add(
+      Polygon(
+        polygonId: PolygonId('1'),
+        geodesic: true,
+        strokeWidth: 1,
+        strokeColor: Colors.transparent,
+        points: points,
+        fillColor: Colors.deepOrange.shade200,
+      ),
+    );
+    //
+    polyline.add(
+      Polyline(
+        polylineId: PolylineId("1"),
+        color: Colors.yellow,
+        width: 3,
+        points: PLpoints,
+      ),
+    );
+    super.initState();
   }
 
   @override
@@ -142,6 +183,8 @@ class _HomeState extends State<Home> {
                   },
                   trafficEnabled: true,
                   markers: _markers,
+                  polygons: polygon,
+                  polylines: polyline,
                   onTap: (LatLng position) async {
                     try {
                       //lat long to places
